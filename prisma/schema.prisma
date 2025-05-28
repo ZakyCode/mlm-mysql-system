@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  email      String    @unique
+  phone      String
+  password   String
+  role       Role
+  sponsor_id String?
+  sponsor    User?     @relation("SponsorRelation", fields: [sponsor_id], references: [id])
+  sponsored  User[]    @relation("SponsorRelation")
+  created_at DateTime  @default(now())
+  transactions Transaction[]
+  commissions Commission[]
+}
+
+model Transaction {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [user_id], references: [id])
+  user_id    String
+  qty        Int
+  total      Int
+  created_at DateTime  @default(now())
+}
+
+model Commission {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [user_id], references: [id])
+  user_id    String
+  source_id  String
+  amount     Int
+  created_at DateTime  @default(now())
+}
+
+enum Role {
+  member
+  stokis
+  admin
+}
